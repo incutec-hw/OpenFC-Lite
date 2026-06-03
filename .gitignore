@@ -1,0 +1,61 @@
+# macOS
+.DS_Store
+
+# KiCad backup and autosave
+*-backups/
+*.bak
+*.000
+_autosave-*
+*~
+\#auto_saved_files#
+
+# KiCad generated/local
+*.kicad_prl
+*.kicad_dru
+*.kicad_sch-bak
+*.kicad_pcb-bak
+*.lck
+*.net
+*.rpt
+*.tmp
+fp-info-cache
+replicate_layout.log
+
+# KiCad local history
+**/.history/
+
+# 3D exports (not library files)
+**/.step
+**/*.glb
+
+# Production output (generated, re-exportable)
+**/production/
+
+# Fabrication toolkit config
+fabrication-toolkit-options.json
+
+# Python
+__pycache__/
+*.pyc
+
+# Claude (CLAUDE.md is a tracked project doc — do not ignore it)
+.claude/
+
+# Generated exports
+hardware/bom/
+hardware/*_Paste.dxf
+hardware/*_Paste.svg
+hardware/*.kicad_pcb.zip
+stencil_out/
+
+# Script output / generated analysis dumps (machine-specific paths, re-exportable)
+analysis/
+extracted_*.json
+ext2_*.json
+netlist_*.json
+hardware/tools/.lcsc_mpn_cache.json
+hardware/pcb.json
+hardware/schematic.json
+
+# Datasheets (downloadable)
+datasheets/
