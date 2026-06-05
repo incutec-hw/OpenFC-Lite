@@ -363,9 +363,9 @@
 				(justify left top)
 			)
 		)
-		(pin "SPI1{SCK,MOSI,MISO}" bidirectional
-			(at 86.36 82.55 0)
-			(uuid "f0727fa2-cfc5-4a6e-9015-0aaabdeb947d")
+		(pin "FLASH_CS" input
+			(at 86.36 80.01 0)
+			(uuid "1f1666b0-d45a-44fd-9c93-0f670f7e7056")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -373,9 +373,9 @@
 				(justify right)
 			)
 		)
-		(pin "FLASH_CS" input
-			(at 86.36 80.01 0)
-			(uuid "1f1666b0-d45a-44fd-9c93-0f670f7e7056")
+		(pin "SPI1{SCK,MOSI,MISO}" bidirectional
+			(at 86.36 82.55 0)
+			(uuid "5ec2502d-931b-4ab1-b7dd-6b37b510c639")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -461,7 +461,7 @@
 		)
 		(pin "SPI0{SCK,MOSI,MISO}" bidirectional
 			(at 86.36 100.33 0)
-			(uuid "8118814b-581e-4f77-9e23-8c186bf467ac")
+			(uuid "d997f6f5-fe74-433b-9941-0f888561bfce")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -771,16 +771,6 @@
 				(justify right)
 			)
 		)
-		(pin "SPI1{SCK,MOSI,MISO}" bidirectional
-			(at 102.87 82.55 180)
-			(uuid "8bd1ee90-a7f7-478a-b785-fc395a7ee414")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
 		(pin "UART0_RX" input
 			(at 165.1 96.52 0)
 			(uuid "64ebb432-6cd0-4e4b-b946-124ff1f7167b")
@@ -861,16 +851,6 @@
 				(justify right)
 			)
 		)
-		(pin "SPI0{SCK,MOSI,MISO}" bidirectional
-			(at 102.87 100.33 180)
-			(uuid "d6dbd76b-8c71-4fc8-812b-af268e9698bb")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
 		(pin "GYRO_CLKIN" output
 			(at 102.87 102.87 180)
 			(uuid "02a5ca44-bca8-4266-a576-06a8426cc51e")
@@ -889,6 +869,26 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+			)
+		)
+		(pin "SPI0{SCK,MOSI,MISO}" bidirectional
+			(at 102.87 100.33 180)
+			(uuid "bdec9ea1-3172-43c9-acaf-dcee2f94998d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SPI1{SCK,MOSI,MISO}" bidirectional
+			(at 102.87 82.55 180)
+			(uuid "3f558db2-a0e6-4ba6-b649-c26080b27070")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 		(instances
