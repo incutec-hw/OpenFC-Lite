@@ -9,7 +9,7 @@ Open-source Betaflight flight controller built on the RP2354B — 6-layer, 30.5�
 
 Motor outputs are signal-level lines that drive an external 4-in-1 ESC (e.g. OpenESC) over the 8-pin ESC connector — there are no onboard motor drivers. Barometer, integrated receiver, and onboard SPI blackbox flash are omitted by design; blackbox logging uses the microSD slot, and the receiver connects externally over UART.
 
-> A smaller **[OpenFC-Lite-Mini](https://github.com/incutec-hw/OpenFC-Lite-Mini)** (20×20 mm, RP2354A) shares this design.
+> A smaller **[OpenFC-Lite-Mini](https://github.com/incutec-hw/OpenFC-Lite-Mini)** (20×20 mm, RP2354A) shares this design. **Both are being ordered for Rev 2;** this full-size board adds bigger pads, more I/O, full-size SD, and OSD debug pads.
 >
 > 📖 **Build, flashing, and bring-up/testing notes live in the [Wiki](https://github.com/incutec-hw/OpenFC-Lite/wiki).** This README is the canonical board reference. Per-sheet engineering rationale is in [`hardware/DESIGN_NOTES.md`](hardware/DESIGN_NOTES.md).
 
@@ -21,7 +21,7 @@ Motor outputs are signal-level lines that drive an external 4-in-1 ESC (e.g. Ope
 | **IMU** | 6-axis MEMS on SPI0, LGA-14 footprint. Rev 1 populates LSM6DSV16XTR (U9). The footprint also accepts TDK ICM-426xx/456xx — IMU is a population choice, not a layout change |
 | **Barometer** | None (omitted by design) |
 | **Blackbox** | microSD card slot (push-push, TF-021B-H265 family) on SPI1 |
-| **OSD** | Analog, PIO-driven: sync-separator comparator + video op-amp + SPDT analog switch (no MAX7456-class OSD chip, no onboard flash) |
+| **OSD** | Analog, PIO-driven: sync-separator comparator + video op-amp + SPDT analog switch (no MAX7456-class OSD chip, no onboard flash). Includes OSD debug/bring-up pads (not on the Mini). |
 | **Regulators** | 10V switchable buck, 5V always-on buck, USB/BATT power mux, 3.3V LDO, 1.8V gyro LDO (see power tree) |
 | **UARTs** | 4 total — 2 hardware UARTs + 2 PIO software UARTs |
 | **Motor outputs** | 4 (MOTOR1–MOTOR4), signal-level to external ESC |
