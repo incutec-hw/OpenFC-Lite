@@ -549,7 +549,7 @@
 					)
 				)
 			)
-			(property "LCSC Part" "C42411119"
+			(property "LCSC" "C42411119"
 				(at 0 -10.16 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -718,7 +718,7 @@
 					)
 				)
 			)
-			(property "LCSC Part" "C459538"
+			(property "LCSC" "C459538"
 				(at 0 -17.78 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1038,7 +1038,7 @@
 					)
 				)
 			)
-			(property "LCSC Part" "C39843328"
+			(property "LCSC" "C39843328"
 				(at 0 -60.96 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -2614,7 +2614,7 @@
 					)
 				)
 			)
-			(property "LCSC Part" "C2976675"
+			(property "LCSC" "C2976675"
 				(at 0 -10.16 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -2760,7 +2760,7 @@
 					)
 				)
 			)
-			(property "LCSC Part" "C5187472"
+			(property "LCSC" "C5187472"
 				(at 0 -24.13 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -3090,7 +3090,7 @@
 					)
 				)
 			)
-			(property "LCSC Part" "C37635340"
+			(property "LCSC" "C37635340"
 				(at 0 -12.7 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -10295,7 +10295,7 @@
 				)
 			)
 		)
-		(property "LCSC Part" "C2849580"
+		(property "LCSC" "C2849580"
 			(at 425.45 241.3 0)
 			(hide yes)
 			(show_name no)
@@ -10411,7 +10411,7 @@
 				)
 			)
 		)
-		(property "LCSC Part" "C5187472"
+		(property "LCSC" "C5187472"
 			(at 80.01 250.19 0)
 			(hide yes)
 			(show_name no)
@@ -14081,7 +14081,7 @@
 				)
 			)
 		)
-		(property "LCSC Part" "C39843328"
+		(property "LCSC" "C39843328"
 			(at 274.32 269.24 0)
 			(hide yes)
 			(show_name no)
@@ -15972,7 +15972,7 @@
 				)
 			)
 		)
-		(property "LCSC Part" "C42411119"
+		(property "LCSC" "C42411119"
 			(at 233.68 265.43 0)
 			(hide yes)
 			(show_name no)
@@ -16471,7 +16471,7 @@
 				)
 			)
 		)
-		(property "LCSC Part" "C2976675"
+		(property "LCSC" "C2976675"
 			(at 223.52 246.38 0)
 			(hide yes)
 			(show_name no)
@@ -16886,7 +16886,7 @@
 				)
 			)
 		)
-		(property "LCSC Part" "C37635340"
+		(property "LCSC" "C37635340"
 			(at 110.49 241.3 0)
 			(hide yes)
 			(show_name no)
@@ -17620,7 +17620,7 @@
 				)
 			)
 		)
-		(property "LCSC Part" "C2849580"
+		(property "LCSC" "C2849580"
 			(at 398.78 283.21 0)
 			(hide yes)
 			(show_name no)
