@@ -39,7 +39,7 @@ Motor outputs are signal-level lines that drive an external 4-in-1 ESC (e.g. Ope
 | +5V (always-on) | +BATT | LMR51430YFDDCR buck (U4) | 4.7µH (L3). |
 | +5V (muxed) | +5V_BUCK + +5V_USB | TPS2116DRLR (U5) | Auto-selects battery vs USB source. |
 | +3.3V | +5V | LP5912-3.3DRVR (U7) | Logic LDO. |
-| +1.8V_GYRO | +5V | NCV8187AMT180TAG (U6) | Dedicated IMU analog supply. |
+| +1.8V_GYRO | +5V | NCV8187AMT180TAG (U6) | 1.2 A LDO, high PSRR (80 dB to 10 kHz). Dedicated IMU analog supply. |
 | +1.1V | +3.3V | RP2354B internal core regulator | MCU core. |
 
 ## Connectivity / IO
