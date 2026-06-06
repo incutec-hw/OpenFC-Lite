@@ -1,221 +1,133 @@
-# OpenFC-Lite-Mini
+# OpenFC-Lite
 
-Open-source Betaflight flight controller — **20×20 mm**, 6-layer, 3S–6S, built around the RP2354B microcontroller. Compact and low-cost: external RX over UART, microSD blackbox, analog OSD.
+Open-source Betaflight flight controller built on the RP2354B — 6-layer, 30.5×30.5 mm mounting, 3S–6S input, microSD blackbox, analog OSD.
 
 <p>
 <img src="images/openfc-lite-rev1-top.png" width="400" alt="OpenFC-Lite Rev 1 Top" />
 <img src="images/openfc-lite-rev1-bottom.png" width="400" alt="OpenFC-Lite Rev 1 Bottom" />
 </p>
 
-> This repository is the **Mini** (20×20). A larger **OpenFC-Lite** (30.5×30.5 mm, bigger pads, more I/O, full-size SD) will be derived from this design once the Mini is finalized.
+Motor outputs are signal-level lines that drive an external 4-in-1 ESC (e.g. OpenESC) over the 8-pin ESC connector — there are no onboard motor drivers. Barometer, integrated receiver, and onboard SPI blackbox flash are omitted by design; blackbox logging uses the microSD slot, and the receiver connects externally over UART.
 
-## At a glance
-
-| | |
-|---|---|
-| MCU | RP2354B — dual Cortex-M33 @ 150 MHz, 2 MB flash, QFN-80 |
-| IMU | 6-axis, SPI0 (LGA-14 footprint — part TBD, see [IMU](#imu)) |
-| Blackbox | microSD card slot (TF-021B-H265) on SPI1 |
-| OSD | analog, PIO-driven (sync separator + op-amp + SPDT switch) |
-| Power | 3S–6S; switchable 10V (VTX/cam) + always-on 5V |
-| Size | 20×20 mm, 6-layer |
-| RX | external, over UART |
-| USB | USB-C, USB-CDC for configuration |
-
-Intentionally omitted to keep it small and cheap: barometer, integrated ELRS receiver, onboard WS2812B LEDs (LED-strip pad only), onboard SPI blackbox flash (microSD instead).
-
-## Status
-
-Rev 1 boards have been received and brought up. The custom Betaflight target builds and flashes; USB enumeration, IMU, SD card blackbox, and the switchable 10V VTX rail are confirmed working on bench. Bring-up of motors, external RX, and the analog OSD chain is in progress. See the [Rev 2 Change List](#rev-2-change-list) for hardware fixes scheduled for the next revision.
+> A smaller **[OpenFC-Lite-Mini](https://github.com/incutec-hw/OpenFC-Lite-Mini)** (20×20 mm, RP2354A) shares this design.
+>
+> 📖 **Build, flashing, and bring-up/testing notes live in the [Wiki](https://github.com/incutec-hw/OpenFC-Lite/wiki).** This README is the canonical board reference. Per-sheet engineering rationale is in [`hardware/DESIGN_NOTES.md`](hardware/DESIGN_NOTES.md).
 
 ## Specifications
 
-### Core
-- **MCU:** RP2354B — dual-core ARM Cortex-M33 @ 150 MHz, 2 MB integrated stacked flash, QFN-80
-- **IMU:** 6-axis MEMS on SPI0, dedicated 1.8V analog LDO (see [IMU](#imu))
-- **Blackbox:** TF-021B-H265 microSD card slot on SPI1
-- **USB:** USB-C, USB-CDC for configuration
+| | |
+|---|---|
+| **MCU** | RP2354B — dual-core ARM Cortex-M33, QFN-80, integrated stacked flash (U2, LCSC C39843328) |
+| **IMU** | 6-axis MEMS on SPI0, LGA-14 footprint. Rev 1 populates LSM6DSV16XTR (U9). The footprint also accepts TDK ICM-426xx/456xx — IMU is a population choice, not a layout change |
+| **Barometer** | None (omitted by design) |
+| **Blackbox** | microSD card slot (push-push, TF-021B-H265 family) on SPI1 |
+| **OSD** | Analog, PIO-driven: sync-separator comparator + video op-amp + SPDT analog switch (no MAX7456-class OSD chip, no onboard flash) |
+| **Regulators** | 10V switchable buck, 5V always-on buck, USB/BATT power mux, 3.3V LDO, 1.8V gyro LDO (see power tree) |
+| **UARTs** | 4 total — 2 hardware UARTs + 2 PIO software UARTs |
+| **Motor outputs** | 4 (MOTOR1–MOTOR4), signal-level to external ESC |
+| **Battery input** | +BATT, 3S–6S |
+| **Copper layers** | 6 |
+| **Board size** | 38.9 × 38.9 mm |
+| **Mounting** | 30.5 × 30.5 mm pattern, 4× Ø4.0 mm holes |
+| **USB** | USB-C (USB full-speed, D+/D- with 30Ω series resistors; configuration/flashing) |
 
 ### Power tree
+
 | Rail | Source | Regulator | Notes |
 |---|---|---|---|
-| +10V (switchable) | +BATT | LMR51430YFDDCR (U3, 3A) | EN gated by GPIO11 (PINIO1). VTX/cam rail. 4.7µH / 22µF 16V / FB 100k:6.49k → 9.85V. |
-| +5V (always-on) | +BATT | LMR51430YFDDCR (U4, 3A) | 4.7µH inductor. |
-| +5V (USB/BATT mux) | +5V_BUCK + +5V_USB | TPS2116DRLR (U5) | Auto-selects active source. |
-| +3.3V | +5V | LP5912-3.3DRVR (U7) | 500 mA LDO. |
-| +1.8V (gyro analog) | +5V | NCV8187AMT180TAG (U6) | Isolated supply for IMU noise rejection. |
-| +1.1V (MCU core) | +3.3V | RP2354B internal VREG | — |
+| +10V (switchable) | +BATT | LMR51430YFDDCR buck (U3) | EN-gated via GPIO (10V_ENABLE). FB divider 100k : 6.49k → ≈9.85V. 4.7µH (L2) / 22µF 16V output. VTX/camera rail. |
+| +5V (always-on) | +BATT | LMR51430YFDDCR buck (U4) | 4.7µH (L3). |
+| +5V (muxed) | +5V_BUCK + +5V_USB | TPS2116DRLR (U5) | Auto-selects battery vs USB source. |
+| +3.3V | +5V | LP5912-3.3DRVR (U7) | Logic LDO. |
+| +1.8V_GYRO | +5V | NCV8187AMT180TAG (U6) | Dedicated IMU analog supply. |
+| +1.1V | +3.3V | RP2354B internal core regulator | MCU core. |
 
-### Motor outputs
-- 4× PIO-driven DShot outputs (DShot600, bidirectional telemetry supported)
-- M1=GPIO31, M2=GPIO30, M3=GPIO29, M4=GPIO28
+## Connectivity / IO
+
+**Serial**
+- UART0 (UART0_TX / UART0_RX) — hardware UART
+- UART1 (UART1_TX / UART1_RX) — hardware UART
+- PIO UART0 (PIOUART0_TX / PIOUART0_RX) — software UART via PIO
+- PIO UART1 (PIOUART1_TX / PIOUART1_RX) — software UART via PIO
+
+**Buses**
+- I2C0 (SCL / SDA) — exposed on expansion pads
+- SPI0 (SCK / MOSI / MISO, + GYRO_INT) — IMU
+- SPI1 (SCK / MOSI / MISO) — microSD blackbox
+
+**Motor / actuator**
+- MOTOR1, MOTOR2, MOTOR3, MOTOR4 — to external ESC
+- LED_STRIP — addressable LED output
+- BEEPER / BUZZER- — N-MOS-driven buzzer output
+
+**Analog inputs (each via RC filter)**
+- ADC_VBAT — battery voltage sense (resistive divider)
+- ESC_CURRENT — current sense from ESC
+- RSSI — analog RSSI
+
+**OSD (analog video chain)**
+- OSD_SYNC, OSD_EN, OSD_W, OSD_LVL — composite-video sync/overlay signals to the OSD front-end
+
+**Status / control**
+- LED0 — status LED
+- 10V_ENABLE — switches the 10V VTX/camera rail
 
 ### Connectors
-- **USB-C** — configuration and firmware flashing
-- **U8** — 6-pin SMD JST SH digital VTX connector (matches Betaflight standard: +10V/GND/TX/RX/GND/SBUS)
-- **P1** — 8-pin TH JST SH ESC harness *(reversed pinout on Rev 1 — must mirror + add telem in Rev 2)*
-- **J7/J8** — I2C0 expansion pads (SDA/SCL, with pull-ups to 3.3V)
 
-### Serial / I/O
-- **UART0** (GPIO0/1) — digital VTX / MSP DisplayPort
-- **UART1** (GPIO22/21) — external serial RX (CRSF/SBUS/etc.)
-- **PIO UART0** (GPIO2/3) — software UART, default GPS
-- **PIO UART1** (GPIO26/27) — software UART, spare
-- **I2C0** (GPIO16/17) — external expansion
-- **SPI0** (GPIO18/19/20, CS=GPIO14, INT=GPIO13) — IMU
-- **SPI1** (GPIO42/43/44, CS=GPIO46) — microSD blackbox
+| Ref | Part | Type | Function |
+|---|---|---|---|
+| U8 | SM06B-SRSS-TB | 6-pin SMD JST SH | Digital VTX |
+| P1 | SM08B-SRSS-TB | 8-pin TH JST SH | ESC harness |
+| USB1 | Type-C 16P | USB-C | Configuration / flashing |
 
-### Analog inputs
-- VBAT sense (GPIO41) — 100k/10k divider, 11:1 ratio, 1k+100nF RC filter
-- Current sense (GPIO40) — onboard sense circuit, 1k+100nF RC filter
-- RSSI (GPIO45) — 1k+100nF RC filter
-- External ADC (GPIO47) — 1k+100nF RC filter
+A large number of through-hole solder pads (J*) expose rails and signal lines (5V, GND, MOTOR1–4, UART, LED_STRIP, RSSI, etc.) for direct wiring.
 
-### Additional
-- Addressable LED strip output (GPIO23, PIO2)
-- Status LED (GPIO12)
-- Beeper output (GPIO6)
-- 10V rail enable (GPIO11) — exposed as PINIO1/USER1 in firmware
+## Repository structure
 
-### Analog OSD
-- TLV3201AIDBVR (U20) — fast comparator, sync separator on incoming composite video
-- TLV9061IDPWR (U19) — op-amp output buffer to the camera signal
-- SN74LVC1G3157DTBR (U18) — SPDT analog switch: camera passthrough, black-pixel inject, white-pixel inject
-- Driven by RP2354B PIO2 — pixel-level timing for character overlay on PAL/NTSC composite
+```
+OpenFC-Lite/
+├── README.md
+├── LICENSE                       CERN-OHL-S-2.0
+├── CLAUDE.md                     project working agreement / design notes
+├── hardware/                     KiCad 9 project (single project)
+│   ├── OpenFC.kicad_pro          project file
+│   ├── OpenFC.kicad_sch          top-level (hierarchical) schematic
+│   ├── rp2350a.kicad_sch         RP2354B MCU + support
+│   ├── power.kicad_sch           regulators (10V/5V bucks, mux, 3.3V/1.8V LDOs)
+│   ├── imu.kicad_sch             6-axis IMU on SPI0
+│   ├── osd.kicad_sch             analog OSD chain
+│   ├── blackbox.kicad_sch        microSD card slot on SPI1
+│   ├── pads.kicad_sch            solder pads and connectors
+│   ├── OpenFC.kicad_pcb          PCB layout (6 layers)
+│   ├── OpenFC.kicad_dru          custom design rules
+│   ├── lib.kicad_sym             project-local symbol library
+│   ├── lib.3dshapes/             project-local 3D models
+│   ├── datasheets/               component datasheets
+│   ├── production/               JLCPCB exports (rev1: gerbers zip, BOM, CPL)
+│   └── tools/                    read-only analysis scripts (kicad-skip / pcbnew)
+├── analysis/                     netlist/IC/power extraction output
+└── images/                       board renders
+```
 
-## IMU
+All symbol, footprint, and 3D-model libraries are project-local — no external library setup required to open the project.
 
-The IMU footprint is LGA-14 (2.5×3 mm), routed with pins 2/3 → GND and pins 10/11 → NC, so it accepts **both TDK (ICM-426xx/456xx) and ST (LSM6D*) families**. Choosing the IMU is a part-population decision, not a layout change.
+## Manufacturing
 
-- **Rev 1** populates **LSM6DSV16XTR** for development only.
-- **The Rev 2 IMU is not yet decided** — to be selected after more bench and flight testing.
-- Note: TDK parts use a CLKIN line to eliminate sample-timing jitter; ST parts have no CLKIN/SYNC. This couples to the SPI-bus cleanup in the change list below.
+Rev 1 production files are in `hardware/production/`, generated with the KiCad Fabrication Toolkit for JLCPCB assembly:
+
+- `OpenFC-Lite-rev1.zip` — gerbers + drill
+- `OpenFC-Lite-rev1_bom.csv` — BOM (LCSC part numbers)
+- `OpenFC-Lite-rev1_positions.csv` / `_designators.csv` — pick-and-place (CPL)
+- `netlist.ipc` — IPC-2581 netlist
+
+6-layer board. SMT passives are predominantly 0201; assembly targets JLCPCB with LCSC-sourced components.
 
 ## Firmware
 
-A custom Betaflight target (`OPENFC_LITE_MINI_RP2350B`, `MANUFACTURER_ID = OPFC`, `FC_TARGET_MCU = RP2350B`) defines:
+Target firmware is **Betaflight** on the RP2350 (PICO) platform. The RP2354B uses the Raspberry Pi Pico SDK (C/C++). PIO blocks drive the DShot motor outputs, the software UARTs, the LED strip, and the analog-OSD pixel timing.
 
-- Motor map matching the Rev 1 silkscreen (M1..M4 = GPIO31..GPIO28)
-- `USE_SDCARD_SPI` on SPI1 for blackbox
-- `USE_PINIO` on GPIO11 for the switchable 10V VTX rail
-- FB_OSD framework wired but disabled by default (enable once the analog OSD chain is verified on hardware — note the RP2350B FB_OSD driver is still an open upstream PR stack)
-
-Build (requires a Betaflight checkout with `pico-sdk` and the BF-pinned ARM toolchain):
-
-```sh
-make picotool_install
-make arm_sdk_install
-make CONFIG=OPENFC_LITE_MINI_RP2350B
-```
-
-Output is a `.uf2` in `obj/`. Hold BOOTSEL, plug in USB, and drag the UF2 onto the `RP2350` mass-storage drive that mounts.
-
-## PIO Allocation
-
-The RP2350B has 3 PIO blocks × 4 state machines (12 total):
-
-| Block | Function |
-|---|---|
-| PIO0 | DShot motor output (4 SMs, one per motor) |
-| PIO1 | Software UART (PIO UART0 + PIO UART1 — TX and RX programs) |
-| PIO2 | LED strip + analog OSD pixel timing |
-
-## Revision History
-
-| Rev | Status | Notes |
-|---|---|---|
-| **Rev 1** | current | Received and in bench bring-up |
-| **Rev 2** | in design | See [Rev 2 Change List](#rev-2-change-list) |
-
-## Rev 2 Change List
-
-Schematic changes for the next revision. **Schematic and board edits are done manually** — this list is the spec to run down.
-
-Legend: 🔧 field swap (value/part only) · 🔌 wiring / topology change · 🔍 decision / investigation · ✅ resolved / done on Rev 2 schematic
-
-### Power
-- ✅ **HW-5 — U3/U4 bucks**: LMR51420 (2A) → **LMR51430YFDDCR** (3A, C5219261) — fitted, same SOT-23-6. *Clean the `TI ` prefix out of the MPN field so LCSC/MPN exact-match works for BOM/assembly.*
-- ✅ **HW-2 — R30** (10V FB, R29=100k top): 6.8k → **6.49k** (E96, what was in stock). Vout = 0.6·(1 + 100/6.49) = **9.85V** (~1.5% low — fine).
-- ✅ **HW-1 — C28** (10V buck output cap): **kept 22µF 16V X5R 0603** (decided against 25V). Voltage margin OK (10V on 16V); DC-bias derates effective C to ~7–11µF, which with the 4.7µH inductor raises 10V ripple but is acceptable for a **digital** VTX rail.
-- ✅ **HW-3 — L2/L3 inductors**: **both rails = 4.7µH (XRTC303020D4R7MBCA)** (decided against 10µH on L2). 10V ripple ≈1.17A p-p at 6S; peak well under the 3A part. *Verify the inductor Isat ≥ ~4A.*
-- ✅ **HW-8 — U6 gyro LDO**: **kept NCV8187AMT180TAG** (300 mA) for its PSRR — electrically ample (gyro analog is single-digit mA). ⚠️ BF §3.1.2 lists ≥500 mA; confirm whether that's hard-gated at submission. Low stock → consign if needed.
-
-### MCU / USB (per Raspberry Pi RP2350 datasheet)
-- ✅ **R12/R13/R14**: **no change** — keep all at 30Ω. USB FS is impedance-tolerant (30 vs 27Ω inaudible to enumeration); R14 (VREG_AVDD RC filter) 30 vs 33Ω is negligible. Single resistor value = better DFM.
-- 🔍 **D1 — USB ESD (USBLC6-2P6)**: removed on current schematic. ⚠️ **Recommend restoring.** USB is the most-handled / most-exposed interface; the RP2354B PHY isn't rated for system-level (IEC 61000-4-2 8kV) ESD, and the part is tiny/cheap/low-C. The "inconsistency" argument favors adding TVS to the *other* exposed I/O, not stripping USB. **Pending final call.**
-
-### LEDs
-- ✅ All indicator LEDs **0201 → 0402** (0201 too fragile — broke during nut install).
-- ✅ **HW-4 — D2** (LED0 status, GPIO12): green → **blue** (XL-1005UBC, C22355736). BF §3.1.4.6.
-- ✅ **LED series resistors recalculated for ~1mA** (greens = XL-1005UGC, C965793). Vf@1mA estimated: blue ≈2.75V, green ≈2.6V.
-
-  | LED | Color | Source | Old R | **New R (E24)** | I |
-  |---|---|---|---|---|---|
-  | D2 (LED0) | Blue | GPIO12 (~3.3V) | 30R | **510Ω** | ~1.0mA |
-  | D7 | Green | +3.3V | 30R | **680Ω** | ~1.0mA |
-  | D5 | Green | +5V (5V_BUCK) | 200R | **2.4kΩ** | ~1.0mA |
-  | D4 | Green | +10V | 470R | **7.5kΩ** | ~1.0mA |
-
-  D2/D7 sit on 3.3V with low headroom → current is Vf-sensitive; if dim, D2→430Ω, D7→560Ω. Optional: D2→330Ω (~2mA) for daylight pre-arm visibility.
-
-### Signals / connectivity (wiring — manual)
-- 🔌 **SPI0 cleanup**: group **GYRO_CS** into the SPI bus (with SCK/MOSI/MISO); drop the IMU **CLKIN/SYNC** net (GPIO15) — ST gyros have no SYNC. Same regroup for **FLASH_CS** (SD). ⚠️ If a TDK IMU is chosen, CLKIN is useful — couple to the IMU decision.
-- ✅ **SBUS inverter removed** (GPIO9). Confirmed safe: BF PICO inverts at the RP2350 pad IO-mux (`gpio_set_inover/outover(GPIO_OVERRIDE_INVERT)`), auto-set for SBUS, works on native + PIO UARTs. The SBUS line wires straight to a UART/PIO-UART **RX** GPIO; firmware inverts.
-- 🔌 **HW-6 — ESC connector P1**: mirror reversed pinout **+ add telemetry pin** (BF 8-pin: Current = pin 3, Telem = pin 4). **Safety-critical** — current pinout shorts VBAT to a GPIO on a standard BF harness.
-- 🔌 **HW-7** — Add **battery reverse-polarity protection** (PMOS RPP).
-- ✅ **HW-11 — Beeper**: done — **N-MOS low-side switch** (Q2 DMN1150UFB-7B, R20 1k gate, R23 100k pulldown, BEEPER = GPIO7). Better than the NPN spec. *Verify: (1) flyback diode is across the buzzer (cathode → +supply, anode → drain), not just the FET body diode; (2) DMN1150UFB-7B is logic-level (turns on hard at 3.3V).*
-- 🔌 **SD card**: wire compatible with both SPI and SDIO; use SPI for now (see SDIO decision below).
-
-### Analog OSD (BOM + front-end)
-
-Context: OSD is non-functional on Rev 1. In pass-through (OSD_EN held low) the monitor switches to AV (it *sees* a feed) but shows snow — so sync reaches the monitor but is too marginal to lock. Wiring/pinouts of all OSD ICs were verified correct against datasheets; this is a component-suitability + front-end problem, not a connectivity bug. Leading cause: the DC-coupled gain-×2 buffer parks the sync tip on the 0 V rail. Confirm on the bench (tap U19 IN+ → monitor; scope U19 OUT) before committing the front-end change.
-
-- 🔧 **HW-12 — U19 op-amp**: TLV9061IDPWR (C2057878, 10 MHz / 6.5 V/µs, X2SON-5) → **COS8051SOT (C7463385)** — 175 MHz / 150 V/µs RRIO video amp (AD8051-class), 2.5–5.5 V, SOT-23-5, ~$0.24, ~11.5k stock. TLV9061 is under-spec for composite video (≈5 MHz closed-loop at gain 2; chroma needs ≈28 V/µs vs 6.5). ⚠️ New footprint — verify pinout from datasheet (expected AD8051-standard: OUT-1 / V−-2 / +IN-3 / −IN-4 / V+-5; differs from the X2SON TLV9061). Fast part → keep decoupling tight to pin 5, feedback (R47) short, retain R48 series isolation.
-- 🔌 **HW-13 — OSD output front-end** *(leading fix for the snow; bench-confirm first)*: the buffer is DC-coupled with no sync clamp, so on single supply the sync tip sits against the 0 V rail where the output is weakest → ill-defined sync → no lock. Add **AC-coupling + DC-restore (sync clamp)** to bias the sync tip ~0.3–0.5 V above ground before the gain stage, and **power U19 from +5 V** for headroom. A dedicated SD-video driver (THS7314-class, integrated DC-restore + 6 dB + 75 Ω drive) is the cleaner alternative if board space allows.
-- 🔧 **HW-14 — U20 comparator (sync sep)**: TLV3201AIDBVR (C105188, SOT-23-5, 4.6 mm²) → **TLV7031DPWR (C2876045)** — push-pull, RRI, **X2SON-5 (0.8×0.8, ~0.64 mm² → ~75% smaller)**, 7 mV hysteresis (vs 1.2 mV; better noise immunity). 3 µs prop delay is **symmetric** (tPHL=tPLH, datasheet §5.8) → preserves HSYNC/VSYNC pulse-width discrimination, adds only a constant ~22 px horizontal offset → **retune PIO `hshiftA/B/C`** (drop ~225 clocks). Residual risk = delay asymmetry over temp/process vs the ±1.1 µs PIO HSYNC window → bench-verify field lock. Conservative fallback: **TLV3201AIDCKR (SC70-5, pin-identical drop-in, 40 ns)** if the X2SON regresses sync.
-- 🔌 **HW-15 — OSD_EN select pull-down**: add a weak pull-down on U18 pin 6 (S / OSD_EN). Datasheet: the select must not float; this also defaults the switch to pass-through (transparent) before firmware drives the GPIO.
-- ✅ **U18 SN74LVC1G3157DTBR (C2673087)** and **D9 SDM02U30LP3-7B** — verified correct, **no change**.
-- ✅ **OSD GPIO mapping** — resolved in the BF target: OSD_W/EN/SYNC are on **GPIO4/5/6 (PA4/5/6)**, not GPIO33/34/35 (those pads are unconnected); beeper is **GPIO7**. Config corrected.
-
-### Decisions / investigations
-- 🔍 **IMU** — undecided for Rev 2; see [IMU](#imu).
-- ✅ **U5 power MUX** — **TPS2116DRLR** confirmed (auto-select USB/BATT).
-- ✅ **SDIO on Pico** — **stay on SPI.** Betaflight PICO supports SD blackbox over **SPI only** (PR #14567); no SDIO under `src/platform/PICO/`, no open PR. SDIO would give ~10× throughput (~25 MB/s vs ~2 MB/s — needed for 4kHz+ full-field logging) but requires a 4-bit HW bus *and* firmware that doesn't exist. SPI1 microSD is correct.
-- ✅ **CRIT-2 — motor order**: keep reversed silk (eases routing); **resolve in the BF target's DShot motor resource order** so M1–M4 map to the pads. Documented in the target.
-- 🔍 **CRIT-3 — FB_OSD upstream**: the RP2350B analog-OSD driver PR stack (#14882) is still open; no flyable upstream binary yet. Track before tape-out.
-- ✅ **SWD connector** — **not adding.** RP2354B flashes over USB (UF2/BOOTSEL); SWD is only for live debug. Optional test pads cost nothing but no connector needed.
-
-## Repository Structure
-
-```
-OpenFC-Lite-Mini/
-├── README.md
-├── LICENSE
-├── hardware/                ← KiCad 9 project, libraries, and production files
-│   ├── OpenFC.kicad_pro     ← Project file
-│   ├── OpenFC.kicad_pcb     ← PCB layout
-│   ├── OpenFC.kicad_sch     ← Top-level schematic (hierarchical)
-│   ├── *.kicad_sch          ← Sub-sheets
-│   ├── lib.kicad_sym        ← Project-local symbol library
-│   ├── lib.pretty/          ← Project-local footprint library
-│   ├── lib.3dshapes/        ← Project-local 3D models
-│   ├── production/          ← JLCPCB production exports, per revision
-│   └── tools/               ← Analysis scripts (Python, kicad-skip / pcbnew API)
-└── images/                  ← Board renders
-```
-
-All symbol, footprint, and 3D model libraries are project-local — no external library setup required.
-
-## Schematic Hierarchy
-
-- `OpenFC.kicad_sch` — top-level
-- `rp2350a.kicad_sch` — RP2354B microcontroller and supporting circuitry
-- `power.kicad_sch` — power supply and regulation (10V buck, 5V buck, 3.3V/1.8V LDOs, 5V mux)
-- `imu.kicad_sch` — 6-axis IMU on SPI0 (LGA-14 2.5×3 footprint; Rev 1 populates LSM6DSV16XTR for dev — see [IMU](#imu))
-- `osd.kicad_sch` — analog OSD chain (TLV3201 sync sep + TLV9061 buffer + SN74LVC1G3157 switch)
-- `blackbox.kicad_sch` — TF-021B-H265 microSD card slot
-- `pads.kicad_sch` — solder pads and connectors
+Note: the RP2350 analog-OSD (FB_OSD) driver is still an open upstream Betaflight PR stack — OSD is not yet flyable from an upstream binary. See the [Wiki](https://github.com/incutec-hw/OpenFC-Lite/wiki) for bring-up status.
 
 ## License
 
-Hardware licensed under [CERN-OHL-S-2.0](https://ohwr.org/cern_ohl_s_v2.txt). See [LICENSE](LICENSE) for details.
+Hardware licensed under [CERN-OHL-S-2.0](https://ohwr.org/cern_ohl_s_v2.txt). See [LICENSE](LICENSE).

@@ -1,7 +1,7 @@
-# OpenFC-Lite-Mini — Project Instructions
+# OpenFC-Lite — Project Instructions
 
 ## About this repo
-OpenFC-Lite-Mini is an open-source Betaflight flight controller: **20×20 mm**, 6-layer, 3S–6S, built around the RP2354B. This repository covers the **Mini only**. The larger **30.5×30.5 mm OpenFC-Lite** will be a separate project derived from this one once the Mini is finalized; the two share the same schematic.
+OpenFC-Lite is an open-source Betaflight flight controller: full-size **30.5×30.5 mm mounting** (38.9×38.9 mm board), 6-layer, 3S–6S, built around the **RP2354B**. This repository covers the **full-size Lite only**. A smaller **[OpenFC-Lite-Mini](https://github.com/incutec-hw/OpenFC-Lite-Mini)** (20×20 mm, **RP2354A**) is a separate repo that shares this design; the two differ in MCU package, GPIO count, and a small amount of I/O (e.g. one UART).
 
 Design intent — a compact, low-cost FC:
 - No barometer.
@@ -11,7 +11,7 @@ Design intent — a compact, low-cost FC:
 
 ## Working agreement
 - Stan is a hardware/embedded engineer. Be direct and critical — flag problems, skip praise.
-- **Claude never edits schematics or board layouts.** Do not modify `.kicad_sch`, `.kicad_pcb`, or `.kicad_pro` — not even a value/field swap. Claude produces analysis and **change lists**; Stan makes every schematic/PCB edit in KiCad himself. Pending schematic changes live in the README **Rev 2 Change List**.
+- **Claude never edits schematics or board layouts.** Do not modify `.kicad_sch`, `.kicad_pcb`, or `.kicad_pro` — not even a value/field swap. Claude produces analysis and **change lists**; Stan makes every schematic/PCB edit in KiCad himself.
 - Never hand-edit a KiCad S-expression file. Read and analyze only — via kicad-skip, the pcbnew API, or kicad-cli.
 - Claude may edit documentation (README, this file, other Markdown, JSON config/export files). Keep docs accurate — no aspirational content.
 - Git: `main` is protected. Work on feature branches and open PRs via `gh`. Commit/push only when asked.
@@ -29,8 +29,8 @@ Design intent — a compact, low-cost FC:
 - **Headless net extraction (no pcbnew):** `kicad-cli sch export netlist --format kicadsexpr -o /tmp/x.net hardware/OpenFC.kicad_sch`, then `python3 hardware/tools/openfc_netlist_extract.py --netlist /tmp/x.net`.
 
 ## Revisions
-- **Rev 1** — current physical prototype; received and in bench bring-up.
-- **Rev 2** — next revision, in design. Change list in the README.
+- **Rev 1** — first prototype; received and bench-tested.
+- **Rev 2** — current revision; change list implemented, being ordered. (Rev-2 production files not yet exported to `hardware/production/`.)
 
 (No "V0.x" numbering — the earlier V0.1–V0.3 labels were export artifacts and are retired.)
 
