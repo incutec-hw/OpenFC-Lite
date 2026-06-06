@@ -3,8 +3,8 @@
 Open-source Betaflight flight controller built on the RP2354B — 6-layer, 30.5×30.5 mm mounting, 3S–6S input, microSD blackbox, analog OSD.
 
 <p>
-<img src="images/openfc-lite-rev1-top.png" width="400" alt="OpenFC-Lite Rev 1 Top" />
-<img src="images/openfc-lite-rev1-bottom.png" width="400" alt="OpenFC-Lite Rev 1 Bottom" />
+<img src="images/openfc-lite-rev2-top.png" width="400" alt="OpenFC-Lite Rev 2 Top" />
+<img src="images/openfc-lite-rev2-bottom.png" width="400" alt="OpenFC-Lite Rev 2 Bottom" />
 </p>
 
 Motor outputs are signal-level lines that drive an external 4-in-1 ESC (e.g. OpenESC) over the 8-pin ESC connector — there are no onboard motor drivers. Barometer, integrated receiver, and onboard SPI blackbox flash are omitted by design; blackbox logging uses the microSD slot, and the receiver connects externally over UART.
