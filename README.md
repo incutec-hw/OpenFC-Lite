@@ -10,8 +10,6 @@ Open-source Betaflight flight controller built on the RP2354B — 6-layer, 30.5�
 Motor outputs are signal-level lines that drive an external 4-in-1 ESC (e.g. OpenESC) over the 8-pin ESC connector — there are no onboard motor drivers. Barometer, integrated receiver, and onboard SPI blackbox flash are omitted by design; blackbox logging uses the microSD slot, and the receiver connects externally over UART.
 
 > A smaller **[OpenFC-Lite-Mini](https://github.com/incutec-hw/OpenFC-Lite-Mini)** (20×20 mm, RP2354A) shares this design. **Both are being ordered for Rev 2;** this full-size board adds bigger pads, more I/O, full-size SD, and OSD debug pads.
->
-> 📖 **Build, flashing, and bring-up/testing notes live in the [Wiki](https://github.com/incutec-hw/OpenFC-Lite/wiki).** This README is the canonical board reference. Per-sheet engineering rationale is in [`hardware/DESIGN_NOTES.md`](hardware/DESIGN_NOTES.md).
 
 ## Specifications
 
@@ -110,17 +108,6 @@ OpenFC-Lite/
 ```
 
 All symbol, footprint, and 3D-model libraries are project-local — no external library setup required to open the project.
-
-## Manufacturing
-
-Rev 1 production files are in `hardware/production/`, generated with the KiCad Fabrication Toolkit for JLCPCB assembly:
-
-- `OpenFC-Lite-rev1.zip` — gerbers + drill
-- `OpenFC-Lite-rev1_bom.csv` — BOM (LCSC part numbers)
-- `OpenFC-Lite-rev1_positions.csv` / `_designators.csv` — pick-and-place (CPL)
-- `netlist.ipc` — IPC-2581 netlist
-
-6-layer board. SMT passives are predominantly 0201; assembly targets JLCPCB with LCSC-sourced components.
 
 ## Firmware
 
